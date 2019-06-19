@@ -1,0 +1,152 @@
+  <html>
+ <head>
+  <title>Zombie Map</title>
+   
+<style>
+ #zombie_map {
+     width: 100%;
+     height: 100%;
+     left: 0;
+	position: absolute;
+	top: 0;
+	background-color: grey;
+  }
+    </style>
+  
+</head>
+
+<body>
+
+My zombie map
+
+ <div id="zombie_map"></div>
+
+
+
+
+
+
+
+<script>
+var zombie_map;
+var old_position;
+var tolerance = 600;
+var score = 100;
+ 
+ var data = `-33.32780077000433 115.63289970304106 zombie.png 
+-33.32801591488281 115.63348442460631 zombie.png 
+-33.327778359048956 115.63329130555724 zombie.png 
+-33.32747356948336 115.63295334722136 zombie.png 
+-33.32721808329081 115.63348978902434 zombie.png 
+-33.32698948974671 115.63318401719664 zombie.png 
+-33.32701638313596 115.63259393121336 zombie.png 
+-33.32760355339907 115.6320789470825 zombie.png 
+-33.3280338435987 115.6321325912628 zombie.png 
+-33.32827139873601 115.63303917790984 hospital.png 
+-33.327451158443814 115.63317865277861 hospital.png 
+-33.32767078638283 115.63363999272917 hospital.png 
+-33.32700293644237 115.63351124669646 hospital.png 
+-33.328110040600095 115.63314646627043 weapons.png 
+-33.32790386032491 115.63338250066374 weapons.png 
+-33.32782318095396 115.6330874576721 weapons.png 
+-33.32741530076855 115.63281387235259 weapons.png 
+-33.32744219402638 115.63225060845946 weapons.png 
+-33.32794419998235 115.63195020104979 weapons.png 
+-33.32710154548051 115.63363999272917 weapons.png`; 
+
+
+var markers = data.split("\n");
+var all_markers =[];
+
+
+
+
+function initMap() {
+  zombie_map = new google.maps.Map(document.getElementById('zombie_map'),  {
+    zoom: 18,
+    center:  {lat: -33.327617, lng: 115.633066},
+mapTypeId: 'satellite'
+});
+
+
+if (navigator.geolocation) {
+navigator.geolocation.watchPosition(set_my_position);
+}
+else {
+alert("geolocation doesn't work in your browser");
+}
+
+old_position = new google.maps.Marker({
+position: {lat: -33.327617, lng: 115.633066},
+
+map: zombie_map
+
+});
+function set_my_position(position) {
+
+old_position.setMap(null);
+
+var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+console.log(pos);
+ var marker = new google.maps.Marker({
+position: pos,
+
+icon: "player.png",
+map: zombie_map
+
+});
+
+old_position = marker;
+
+for (var i=0; i<all_markers.length; i++)  {
+var distance = google.maps.geometry.spherical.computerDistanceBetween(pos, all_markers[i].getPosition());
+console.log(distance)
+if (distance < tolerance)  {
+    
+var what_is_it = all_markers[i].getIcon();
+what_is_it = what_is_it.replaced(".png", "")
+alert ("found the " + what_is_it);
+all_markers[i].setMap(null);
+if (what_is_it = "zombie") {
+score -=10;
+alert ("your score is "+score);
+if (what_is_it = "hospital") {
+score +=50;
+alert("your score is "+score);
+}
+
+   }
+}
+}
+
+for (var i=0; i<markers.length; i++) {
+   
+var marker_data = markers[i].trim().split(" ");
+var latitude = marker_data[0];
+var longitude = marker_data[1];
+var emoji = marker_data[2];
+
+
+var marker_position = new google.maps.LatLng(latitude, longitude);
+var marker = new google.maps.Marker({
+position: marker_position,
+icon: emoji,
+map: zombie_map
+});
+
+all_markers.push(marker);
+
+}
+}
+}
+</script>
+
+<script async defer
+  
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNVaFnBZ6HjFJVw2AdfLQWHed2G8Fy_eI&callback=initMap&libraries=geometry">
+
+</script>
+
+
+  </body>
+</html>
